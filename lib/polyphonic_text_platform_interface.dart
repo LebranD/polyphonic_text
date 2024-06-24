@@ -24,7 +24,7 @@ abstract class PolyphonicTextPlatform extends PlatformInterface {
   }
 
   Future<void> downloadFontIfNeed({
-    required String fontUrl,
+    required String fontUrl
   }) {
     throw UnimplementedError('downloadFontIfNeed() has not been implemented.');
   }
