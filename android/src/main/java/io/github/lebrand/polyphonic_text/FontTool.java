@@ -117,7 +117,6 @@ class DownloadFileTask extends AsyncTask<Void, Void, Boolean> {
             result.onSuccess();
         } else {
             // 返回下载失败
-            Log.e("downloadFont","下载失败");
             result.onFail();
         }
     }

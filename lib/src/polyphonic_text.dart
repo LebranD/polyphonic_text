@@ -13,7 +13,8 @@ class PolyphonicTextView extends StatefulWidget {
     this.fontSize = 14,
     this.textAlign = TextAlign.start,
     Color? color,
-    this.height, this.fontFamily = MethodChannelPolyphonicText.kDefaultFontName,
+    this.height,
+    this.fontFamily = MethodChannelPolyphonicText.kDefaultFontName,
   }) : textColor = color ?? const Color(0xFF313131);
 
   final String text;

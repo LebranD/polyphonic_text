@@ -41,7 +41,7 @@ class _PolyphonicTextView: UIView {
     private var lineBreakMode: NSLineBreakMode = .byClipping;
     private var fontSize: CGFloat = 14.0;
     private var lineSpace: CGFloat = 14.0;
-    private var fontName: String = "ToneOZ-Pinyin-WenKai-Regular";
+    private var fontFamily: String;
     
     init(
         frame: CGRect,
@@ -63,6 +63,7 @@ class _PolyphonicTextView: UIView {
     private func dump(args: Any?) {
         guard let args = args as? [String: Any] else { return }
         self.text = (args["text"] as? String) ?? ""
+        self.fontFamily = (args["fontFamily"] as? String) ?? ""
         self.fontSize = CGFloat((args["fontSize"] as? NSNumber)?.floatValue ?? 14.0);
         
         self.textColor = colorFromArgs(args: args["textColor"] as? [String: Any]) ?? UIColor.black
@@ -116,14 +117,14 @@ class _PolyphonicTextView: UIView {
         label.textAlignment = self.textAlignment
         label.numberOfLines = self.numberOfLines
         label.lineBreakMode = self.lineBreakMode
-        label.font = UIFont(name: "ToneOZ-Pinyin-WenKai-Regular", size: fontSize)
+        label.font = UIFont(name: self.fontFamily, size: fontSize)
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineSpacing = self.lineSpace;
         paragraphStyle.lineBreakMode = self.lineBreakMode;
         let mutableStr = NSMutableAttributedString(string: self.text)
         mutableStr.addAttribute(.paragraphStyle, value: paragraphStyle, range: NSRange(location: 0, length: mutableStr.length))
         mutableStr.addAttribute(.foregroundColor, value:self.textColor, range: NSRange(location: 0, length: mutableStr.length))
-        mutableStr.addAttribute(.font, value: UIFont(name: self.fontName, size: self.fontSize) as Any, range: NSRange(location: 0, length: mutableStr.length))
+        mutableStr.addAttribute(.font, value: UIFont(name: self.fontFamily, size: self.fontSize) as Any, range: NSRange(location: 0, length: mutableStr.length))
         label.attributedText = mutableStr
         label.translatesAutoresizingMaskIntoConstraints = false
         self.addSubview(label)

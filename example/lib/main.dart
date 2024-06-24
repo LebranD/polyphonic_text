@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:polyphonic_text/polyphonic_text.dart';
@@ -24,7 +26,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> _download() async {
-    await PolyphonicTextPlatform.instance.downloadFontIfNeed(fontUrl: 'https://www.tigeridea.cn/zuidongfeng/font/ATTPY.ttf');
+    final downloadRes = await PolyphonicTextPlatform.instance.downloadFontIfNeed(fontUrl: 'https://www.tigeridea.cn/zuidongfeng/font/ATTPY.ttf');
     setState(() {
       _isDownloadingFont = false;
     });
@@ -51,35 +53,18 @@ class _MyAppState extends State<MyApp> {
             //     ),
             //   ),
 
-            Column(
-                children: [
-                  ColoredBox(
-                    color: Colors.red,
+            ListView.builder(
+                itemBuilder: (context, index) {
+                  return ColoredBox(
+                    color: Colors.primaries[index % Colors.primaries.length],
                     child: PolyphonicTextView(
-                      text: '朝\udb40\udde1如青丝暮成雪。朝\udb40\udde1如青丝暮成雪。',
-                      color: Colors.orange,
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 0,
+                      text: '朝\udb40\udde1如青丝暮成雪。' * (Random().nextInt(20) + 1),
+                      color: Colors.white,
                       fontSize: 30,
                     ),
-                  ),
-                  ColoredBox(
-                    color: Colors.red,
-                    child: PolyphonicTextView(
-                      text: '朝\udb40\udde1如青丝暮成雪。',
-                      color: Colors.orange,
-                      fontSize: 30,
-                    ),
-                  ),
-                  ColoredBox(
-                    color: Colors.red,
-                    child: PolyphonicTextView(
-                      text: '朝\udb40\udde1如青丝暮成雪。',
-                      color: Colors.orange,
-                      fontSize: 30,
-                    ),
-                  ),
-                ],
+                  );
+                },
+                itemCount: 1000,
               ),
 
         // ColoredBox(
