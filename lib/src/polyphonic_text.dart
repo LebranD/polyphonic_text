@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../polyphonic_text.dart';
+
 class PolyphonicTextView extends StatefulWidget {
   const PolyphonicTextView({
     super.key,
@@ -12,6 +14,7 @@ class PolyphonicTextView extends StatefulWidget {
     this.textAlign = TextAlign.start,
     Color? color,
     this.height,
+    this.fontFamily = MethodChannelPolyphonicText.kDefaultFontName,
   }) : textColor = color ?? const Color(0xFF313131);
 
   final String text;
@@ -21,6 +24,7 @@ class PolyphonicTextView extends StatefulWidget {
   final double fontSize;
   final Color textColor;
   final double? height;
+  final String? fontFamily;
 
   @override
   State<PolyphonicTextView> createState() => _PolyphonicTextViewState();
@@ -51,6 +55,7 @@ class _PolyphonicTextViewState extends State<PolyphonicTextView> {
       'text': widget.text,
       'maxLines': widget.maxLines,
       'overflow': widget.overflow.index,
+      'fontFamily': widget.fontFamily,
       'fontSize': widget.fontSize,
       'textAlign': widget.textAlign.index,
       'textColor': {
@@ -65,14 +70,11 @@ class _PolyphonicTextViewState extends State<PolyphonicTextView> {
 
   double _caculateDefaultSize(double maxWidth) {
     final textStyle = TextStyle(fontSize: widget.fontSize, height: widget.height);
-
     final textPainter = TextPainter(
       text: TextSpan(text: widget.text, style: textStyle),
       textDirection: TextDirection.ltr,
     );
-
     textPainter.layout(maxWidth: maxWidth);
-
     final textSize = textPainter.size;
     return textSize.height;
   }
@@ -87,6 +89,7 @@ class _PolyphonicTextViewState extends State<PolyphonicTextView> {
         'overflow': widget.overflow.index,
         'fontSize': widget.fontSize,
         'textAlign': widget.textAlign.index,
+        'fontFamily': widget.fontFamily,
         'textColor': {
           'r': widget.textColor.red,
           'g': widget.textColor.green,
@@ -101,13 +104,25 @@ class _PolyphonicTextViewState extends State<PolyphonicTextView> {
   @override
   Widget build(BuildContext context) {
     if (defaultTargetPlatform == TargetPlatform.android) {
-      // TODO
-      return AndroidView(
-        key: _key,
-        viewType: 'polyphonic_text_factory',
-        creationParams: _creationParams,
-        creationParamsCodec: const StandardMessageCodec(),
-        onPlatformViewCreated: _onPlatformViewCreated,
+      return ValueListenableBuilder(
+        valueListenable: _heightNotifier,
+        builder: (context, value, child) {
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              return SizedBox(
+                height: value ?? _caculateDefaultSize(constraints.maxWidth),
+                width: constraints.maxWidth,
+                child: AndroidView(
+                  key: _key,
+                  viewType: 'polyphonic_text_factory',
+                  creationParams: _creationParams,
+                  creationParamsCodec: const StandardMessageCodec(),
+                  onPlatformViewCreated: _onPlatformViewCreated,
+                ),
+              );
+            },
+          );
+        },
       );
     } else if (defaultTargetPlatform == TargetPlatform.iOS) {
       return ValueListenableBuilder(

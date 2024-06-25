@@ -12,14 +12,12 @@ class MethodChannelPolyphonicText extends PolyphonicTextPlatform {
   final methodChannel = const MethodChannel('polyphonic_text');
 
   @override
-  Future<void> downloadFontIfNeed({
-    required String fontUrl,
-    String fontName = 'ToneOZ-Pinyin-WenKai-Regular',
-  }) async {
-    await methodChannel.invokeMethod<void>('downloadFontIfNeed', {
+  Future<bool> downloadFontIfNeed({required String fontUrl, String? fontName}) async {
+    final res = await methodChannel.invokeMethod<bool>('downloadFontIfNeed', {
       'fontUrl': fontUrl,
-      'fontName': fontName,
+      'fontName': fontName ?? kDefaultFontName,
     });
+    return res ?? false;
   }
 
   @override

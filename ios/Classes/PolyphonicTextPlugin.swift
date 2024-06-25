@@ -19,20 +19,23 @@ public class PolyphonicTextPlugin: NSObject, FlutterPlugin {
                 let args = call.arguments as? [String: Any],
                 let urlStr = args["fontUrl"] as? String,
                 let fontName = args["fontName"] as? String else {
-                result(FlutterError(code: "-1", message: "fontUrl must not be null", details: nil));
+                result(false);
                 return
             }
             if (isFontRegistered(fontName)) {
-                result(nil)
+                result(true)
                 return;
             }
-            guard let url = URL(string: urlStr) else { return }
+            guard let url = URL(string: urlStr) else {
+             result(false)
+             return
+            }
             let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first;
             var path: String;
             if #available(iOS 16.0, *) {
-                path = documentsDirectory!.path() + url.lastPathComponent
+                path = documentsDirectory!.path() + "\(fontName).ttf"
             } else {
-                path = documentsDirectory!.path + url.lastPathComponent
+                path = documentsDirectory!.path + "\(fontName).ttf"
             };
             let isFileExists = FileManager.default.fileExists(atPath: path)
             if (isFileExists) {
@@ -41,16 +44,15 @@ public class PolyphonicTextPlugin: NSObject, FlutterPlugin {
                 guard let fontDataPtr = CFDataCreate(kCFAllocatorDefault, fontBytes, fontData.length),
                       let provider = CGDataProvider.init(data: fontDataPtr),
                       let font = CGFont.init(provider) else {
-                    result(FlutterError(code: "-2", message: "dump font failed", details: nil));
+                    result(false)
                     return
                 }
                 var error: Unmanaged<CFError>?
                 if !CTFontManagerRegisterGraphicsFont(font, &error) {
-                    result(FlutterError(code: "-3", message: "register font failed", details: nil));
+                    result(false);
                 }
                 else {
-                    print("Register Success")
-                    result(nil);
+                    result(true);
                 }
                 return;
             }
@@ -58,7 +60,10 @@ public class PolyphonicTextPlugin: NSObject, FlutterPlugin {
                 if (error != nil) {
                     result(FlutterError(code: "-4", message: "download font failed", details: error?.localizedDescription));
                 } else {
-                    guard let data = data as? NSData else { return }
+                    guard let data = data as? NSData else {
+                     result(false)
+                     return
+                    }
                     do {
                         try data.write(toFile: path)
                     } catch {
@@ -68,17 +73,14 @@ public class PolyphonicTextPlugin: NSObject, FlutterPlugin {
                     guard let fontDataPtr = CFDataCreate(kCFAllocatorDefault, fontBytes, data.length),
                           let provider = CGDataProvider.init(data: fontDataPtr),
                           let font = CGFont.init(provider) else {
-                        result(FlutterError(code: "-2", message: "dump font failed", details: nil));
+                          result(false)
                         return
                     }
                     var error: Unmanaged<CFError>?
                     if !CTFontManagerRegisterGraphicsFont(font, &error) {
-                        let errorDescription = CFErrorCopyDescription((error as! CFError))
-                        result(FlutterError(code: "-3", message: "register font failed", details: errorDescription));
-                    }
-                    else {
-                        print("Register Success")
-                        result(nil);
+                        result(false)
+                    } else {
+                       result(true)
                     }
                 }
             }
