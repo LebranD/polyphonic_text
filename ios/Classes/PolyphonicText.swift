@@ -41,7 +41,7 @@ class _PolyphonicTextView: UIView {
     private var lineBreakMode: NSLineBreakMode = .byClipping;
     private var fontSize: CGFloat = 14.0;
     private var lineSpace: CGFloat = 14.0;
-    private var fontFamily: String;
+    private var fontFamily: String = "";
     
     init(
         frame: CGRect,
