@@ -3,35 +3,42 @@ package io.github.lebrand.polyphonic_text;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.graphics.text.LineBreaker;
-import android.os.Build;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
-import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.TextView;
 
-import java.io.File;
-import java.util.function.Function;
+import java.time.format.TextStyle;
+import java.util.HashMap;
+import java.util.Map;
+
+import androidx.annotation.NonNull;
+
 
 import io.flutter.plugin.platform.PlatformView;
+import io.flutter.plugin.common.MethodCall;
+import io.flutter.plugin.common.MethodChannel;
+import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
+import io.flutter.plugin.common.MethodChannel.Result;
+import io.flutter.plugin.common.BinaryMessenger;
 
-public class PolyphonicTextView implements PlatformView {
 
-    final TextLayoutListener listener;
+public class PolyphonicTextView implements PlatformView, MethodCallHandler {
 
     private final TextView textView;
+    public MethodChannel methodChannel;
 
     final FlutterTextParamsParse.WidgetParams params;
 
-    PolyphonicTextView(Context context, int id,TextLayoutListener listener, FlutterTextParamsParse.WidgetParams params) {
+    PolyphonicTextView(Context context, int id, FlutterTextParamsParse.WidgetParams params, BinaryMessenger messager) {
+        methodChannel = new MethodChannel(messager, "polyphonic_text_factory_" + id);
+        methodChannel.setMethodCallHandler(this);
         textView = new TextView(context);
         textView.setId(id);
-        this.listener = listener;
         this.params = params;
         configTextView(context);
     }
@@ -43,17 +50,24 @@ public class PolyphonicTextView implements PlatformView {
         }
         textView.setGravity(getTextAlign(params.textAlign));
         textView.setEllipsize(TextUtils.TruncateAt.END);
+
         int color = Color.argb(params.textColor.a, params.textColor.r, params.textColor.g, params.textColor.b);
         textView.setTextColor(color);
+
         // 设置行高
         textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, params.fontSize);
         textView.setLineSpacing(0, params.height);
-        // 设置字体
-//        Typeface typeface = Typeface.createFromAsset(context.getAssets(), "fonts/ToneOZ-Pinyin-WenKai-Regular.ttf");
 
+        // 设置字体
         if(params.fontFamily !=null && !params.fontFamily.isEmpty()){
-            Typeface typeface = Typeface.createFromFile(context.getFilesDir().getAbsolutePath() + "/Fonts/"+params.fontFamily+".ttf");
-            textView.setTypeface(typeface);
+            Typeface typeface = FontTool.getInstance().getByName(context,params.fontFamily);
+            int fontStyle = params.getFontStyle();
+            Log.i("PolyphonicText", "fontStyle: " + fontStyle);
+            if(fontStyle != -1){
+                textView.setTypeface(typeface,fontStyle);
+            }else{
+                textView.setTypeface(typeface);
+            }
         }
 
         textView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -68,9 +82,18 @@ public class PolyphonicTextView implements PlatformView {
                 float height = measuredHeight / density;
                 // 取消监听，以免重复调用
                 textView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                listener.onLayoutUpdate(textView.getId(), height, width);
+                onLayoutUpdate(textView.getId(), height, width);
+                textView.postInvalidateDelayed(150);
             }
         });
+    }
+
+    public void onLayoutUpdate(int id, float height, float width) {
+        Log.i("PolyphonicText" ,"onLayoutUpdate " + "id=" + id + ", width=" + width + ", height="+height);
+        Map<String,Float> p = new HashMap<>();
+        p.put("width",width);
+        p.put("height", height);
+        methodChannel.invokeMethod("afterLayout", p);
     }
 
     private int getTextAlign(int textAlign){
@@ -98,4 +121,13 @@ public class PolyphonicTextView implements PlatformView {
 
     @Override
     public void dispose() {}
+
+    @Override
+    public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
+        if (call.method.equals("refreshText")) {
+            Log.i("PolyphonicText", "delay:500 refreshText = " + textView.getId());
+            textView.postInvalidate();
+            result.success(null);
+        }
+    }
 }

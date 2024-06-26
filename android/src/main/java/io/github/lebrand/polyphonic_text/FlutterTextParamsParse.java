@@ -1,7 +1,5 @@
 package io.github.lebrand.polyphonic_text;
 
-import android.util.Log;
-
 import java.util.Map;
 
 public class FlutterTextParamsParse {
@@ -22,6 +20,13 @@ public class FlutterTextParamsParse {
         public int textAlign;
         public TextColor textColor;
         public float height;
+        public int fontWeight;
+
+        public int getFontStyle(){
+            if(fontWeight >= 5) return  0;
+            return -1;
+        }
+
     }
 
     public static WidgetParams parseParams(Map<String, Object> params) {
@@ -36,6 +41,7 @@ public class FlutterTextParamsParse {
         widgetParams.overflow = (Integer) params.get("overflow");
         widgetParams.fontSize = ((Number) params.get("fontSize")).floatValue();
         widgetParams.textAlign = (Integer) params.get("textAlign");
+        widgetParams.fontWeight = (Integer) params.get("fontWeight");
 
         Map<String, Number> textColorMap = (Map<String, Number>) params.get("textColor");
         TextColor textColor = new TextColor();
