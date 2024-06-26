@@ -3,16 +3,41 @@ package io.github.lebrand.polyphonic_text;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.content.Context;
+
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashMap;
 
 public class FontTool{
 
-    static private FontTool _instance;
+     static private FontTool _instance;
+
+     static private HashMap<String, Typeface> cacheFonts = new HashMap<>();
+
+     public void cacheFont(String fontPath, String fontName){
+
+         Log.i("PolyphonicText", "cacheFont: " + fontName +"   " + fontPath);
+
+         if(cacheFonts.get(fontName) != null) return;
+         Typeface typeface = Typeface.createFromFile(fontPath);
+         cacheFonts.put(fontName,typeface);
+     }
+
+     public Typeface getByName(Context context, String fontName){
+         Typeface res = cacheFonts.get(fontName);
+         if(res == null){
+             Log.i("PolyphonicText", "cacheFont: " + fontName +"   ");
+             Typeface typeface = Typeface.createFromFile(context.getFilesDir().getAbsolutePath() + "/Fonts/"+fontName+".ttf");
+             cacheFonts.put(fontName,typeface);
+             return  typeface;
+         }
+         return  res;
+     }
 
     private FontTool() {
     }
@@ -25,13 +50,16 @@ public class FontTool{
     }
 
     public boolean fontIsInstalled(String path){
+        Log.i("PolyphonicText", "fontIsInstalled: " + path);
         File fontFile = new File(path);
         if (fontFile.exists()) {
             try {
                 Typeface typeface = Typeface.createFromFile(fontFile);
+                Log.i("PolyphonicText", "fontIsInstalled:  typeface = " + typeface);
                 return typeface != null;
             } catch (Exception e) {
                 e.printStackTrace();
+                Log.i("PolyphonicText", "fontIsInstalled:  " + e);
                 return false;
             }
         }
