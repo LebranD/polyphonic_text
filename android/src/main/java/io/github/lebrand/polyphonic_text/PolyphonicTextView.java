@@ -55,7 +55,7 @@ public class PolyphonicTextView implements PlatformView, MethodCallHandler {
         textView.setTextColor(color);
 
         // 设置行高
-        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, params.fontSize);
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, params.fontSize);
         textView.setLineSpacing(0, params.height);
 
         // 设置字体
@@ -83,7 +83,7 @@ public class PolyphonicTextView implements PlatformView, MethodCallHandler {
                 // 取消监听，以免重复调用
                 textView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                 onLayoutUpdate(textView.getId(), height, width);
-                textView.postInvalidateDelayed(150);
+                textView.postInvalidateDelayed(300);
             }
         });
     }
