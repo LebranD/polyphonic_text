@@ -5,8 +5,8 @@ repository: https://github.com/LebranD/polyphonic_text
 homepage: https://github.com/LebranD/polyphonic_text
 
 environment:
-  sdk: '>=3.1.0 <4.0.0'
-  flutter: '>=3.3.0'
+  sdk: ">=2.19.0 <4.0.0"
+  flutter: ">=3.0.0"
 
 dependencies:
   flutter:
