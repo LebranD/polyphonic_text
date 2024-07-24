@@ -79,11 +79,10 @@ public class PolyphonicTextView implements PlatformView, MethodCallHandler {
                 DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
                 float density = displayMetrics.density;
                 float width = measuredWidth / density;
-                float height = measuredHeight / density;
-                // 取消监听，以免重复调用
+                float height = measuredHeight / density;// 取消监听，以免重复调用
                 textView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                 onLayoutUpdate(textView.getId(), height, width);
-                textView.postInvalidateDelayed(300);
+                textView.postInvalidateDelayed(1000);
             }
         });
     }

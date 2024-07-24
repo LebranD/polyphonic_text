@@ -116,13 +116,8 @@ class _PolyphonicTextViewState extends State<_PolyphonicTextView> {
   }
 
   double _calculateDefaultSize(double maxWidth) {
-    final textStyle = TextStyle(
-        fontSize: widget.fontSize, height: widget.height, fontFamily: widget.fontFamily, fontWeight: widget.fontWeight);
-    final textPainter = TextPainter(
-      text: TextSpan(text: widget.text, style: textStyle),
-      textDirection: TextDirection.ltr,
-        maxLines: widget.maxLines
-    );
+    final textStyle = TextStyle(fontSize: widget.fontSize, height: widget.height, fontFamily: widget.fontFamily, fontWeight: widget.fontWeight);
+    final textPainter = TextPainter(text: TextSpan(text: widget.text, style: textStyle), textDirection: TextDirection.ltr, maxLines: widget.maxLines);
     textPainter.layout(maxWidth: maxWidth);
     final textSize = textPainter.size;
     return textSize.height;
